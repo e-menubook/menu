@@ -11,7 +11,7 @@
     <script>
         (function() {
             const manifest = {
-                "short_name": "keeper電子メニュー",
+                "short_name": "Keeper電子メニュー",
                 "name": "Keeper電子メニュー",
                 "display": "standalone",
                 "start_url": window.location.href,
@@ -142,7 +142,16 @@
         .file-upload-item { display: flex; flex-direction: column; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
         
         .file-input-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; border: 1px solid transparent; border-radius: 4px; padding: 2px; }
-        .file-input-row input[type="file"] { flex: 1; }
+        .file-input-row input[type="file"] { flex: 1; min-width: 0; }
+        
+        .dl-template-btn {
+            font-size: 11px; padding: 4px 8px; background: #e8f5e9;
+            border: 1px solid #c8e6c9; border-radius: 4px; cursor: pointer; color: #2e7d32;
+            font-weight: bold; white-space: nowrap; text-decoration: none; display: inline-block;
+            text-align: center;
+        }
+        .dl-template-btn:active { background: #c8e6c9; }
+
         .reset-data-btn {
             font-size: 11px; padding: 4px 8px; background: #ffebee; 
             border: 1px solid #ffcdd2; border-radius: 4px; cursor: pointer; color: #c62828;
@@ -164,7 +173,6 @@
         }
 
         .blink-attention { animation: blink-red 1.2s ease-in-out; animation-iteration-count: 3; }
-        /* 遅めの無限点滅クラスを新設 */
         .blink-attention-slow { animation: blink-red 2.0s ease-in-out infinite; }
         
         @keyframes blink-red {
@@ -262,7 +270,6 @@
         .inline-price-wrap { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
         .cart-item-flex-wrap { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* 初回起動時限定のパスワードロック画面用のスタイル */
         .first-lock-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #1a1a1a; z-index: 99999; display: flex;
@@ -299,7 +306,7 @@
 
 <div class="first-lock-overlay" x-show="!isAppUnlocked" x-cloak>
     <div class="first-lock-box">
-        <h2 style="margin: 0 0 20px 0; font-size: 18px; letter-spacing: 1px;">アプリ起動認証</h2>
+        <h2 style="margin: 0 0 20px 0; font-size: 18px; letter-spacing: 1px;">Keeper電子メニュー</h2>
         <input type="password" class="pwd-input" pattern="\d*" inputmode="numeric" placeholder="••••" x-model="firstInputPassword" @keydown.enter="verifyFirstPassword" style="margin-bottom: 20px; background: #fff; color: #000;">
         <div class="dialog-btn-group">
             <button class="dialog-btn btn-yes" @click="verifyFirstPassword" style="padding: 14px;">認証してログイン</button>
@@ -341,7 +348,7 @@
 </div>
 
 <div class="admin-page-overlay" x-show="showAdminPage" x-cloak>
-    <div class="admin-title">11. 価格設定・値引管理システム</div>
+    <div class="admin-title">Keeper電子メニュー</div>
     
     <div class="admin-card">
         <label class="admin-label">① 値引方式の選択 (一括設定)</label>
@@ -424,9 +431,27 @@
                                 </div>
 
                                 <div class="file-upload-group" x-show="showFileWindow">
-                                    <div class="file-upload-item">車種データ<div class="file-input-row" :class="{ 'blink-attention-slow': blinkCarFile }"><input type="file" @change="handleCarFile" id="carFileInput"><button type="button" class="reset-data-btn" @click="resetData('carData', 'carFileInput')">リセット</button></div></div>
-                                    <div class="file-upload-item">洗車・コーティングデータ<div class="file-input-row" :class="{ 'blink-attention-slow': blinkMenuFile }"><input type="file" @change="handleMenuFile" id="menuFileInput"><button type="button" class="reset-data-btn" @click="resetData('menuData', 'menuFileInput')">リセット</button></div></div>
-                                    <div class="file-upload-item">サイドメニューデータ<div class="file-input-row" :class="{ 'blink-attention-slow': blinkOptionFile }"><input type="file" @change="handleOptionFile" id="optionFileInput"><button type="button" class="reset-data-btn" @click="resetData('optionData', 'optionFileInput')">リセット</button></div></div>
+                                    <div class="file-upload-item">車種データ
+                                        <div class="file-input-row" :class="{ 'blink-attention-slow': blinkCarFile }">
+                                            <input type="file" @change="handleCarFile" id="carFileInput">
+                                            <a href="car_size.xlsx" class="dl-template-btn" download="car_size.xlsx">📥 リストDL</a>
+                                            <button type="button" class="reset-data-btn" @click="resetData('carData', 'carFileInput')">リセット</button>
+                                        </div>
+                                    </div>
+                                    <div class="file-upload-item">洗車・コーティングデータ
+                                        <div class="file-input-row" :class="{ 'blink-attention-slow': blinkMenuFile }">
+                                            <input type="file" @change="handleMenuFile" id="menuFileInput">
+                                            <a href="menu.xlsx" class="dl-template-btn" download="menu.xlsx">📥 リストDL</a>
+                                            <button type="button" class="reset-data-btn" @click="resetData('menuData', 'menuFileInput')">リセット</button>
+                                        </div>
+                                    </div>
+                                    <div class="file-upload-item">サイドメニューデータ
+                                        <div class="file-input-row" :class="{ 'blink-attention-slow': blinkOptionFile }">
+                                            <input type="file" @change="handleOptionFile" id="optionFileInput">
+                                            <a href="side.xlsx" class="dl-template-btn" download="side.xlsx">📥 リストDL</a>
+                                            <button type="button" class="reset-data-btn" @click="resetData('optionData', 'optionFileInput')">リセット</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="selection-row">
@@ -534,7 +559,6 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('carSelector', () => ({
-            // 👑 初回起動パスワード用の状態管理群
             isAppUnlocked: false,
             firstInputPassword: '',
 
@@ -553,7 +577,6 @@
             imageFullscreenMode: false,
             fullscreenImageUrl: '',
 
-            // 各要素の点滅フラグ群
             blinkMaker: false,
             blinkModel: false,
             blinkCarFile: false,
@@ -586,12 +609,11 @@
             },
             get nonWrappedCartRows() { return this.cart.map((item, index) => ({ ...item, originalIndex: index })); },
 
-            // 👑 初回起動パスワードの検証処理
             verifyFirstPassword() {
                 if (this.firstInputPassword === '8541') {
                     localStorage.setItem('menu_app_global_unlocked', 'true');
                     this.isAppUnlocked = true;
-                    this.initializeMainFeatures(); // 認証成功後に通常のポップアップ類を呼び出す
+                    this.initializeMainFeatures();
                 } else {
                     alert('パスワードが違います。');
                     this.firstInputPassword = '';
@@ -682,27 +704,21 @@
             },
             declineFullscreenFromDialog() { this.showFullscreenConfirm = false; this.triggerNextBlink(); },
             
-            // 🌟 読み込み状況に応じて、次の点滅対象を自動判定するメソッド
             triggerNextBlink() {
-                // 全ての点滅フラグを一旦リセット
                 this.blinkCarFile = false;
                 this.blinkMenuFile = false;
                 this.blinkOptionFile = false;
                 this.blinkMaker = false;
 
                 if (this.carData.length === 0) {
-                    // ① 車種データ未完了
                     this.blinkCarFile = true;
                 } else if (this.menuData.length === 0) {
-                    // ② 洗車・コーティングデータ未完了
                     this.blinkMenuFile = true;
                 } else if (this.optionData.length === 0) {
-                    // ③ サイドメニューデータ未完了
                     this.blinkOptionFile = true;
                 } else {
-                    // ④ 全て完了している場合は既存の車種ボタン（メーカー選択）を遅めで点滅
                     this.blinkMaker = true;
-                    setTimeout(() => { this.blinkMaker = false; }, 6000); // 遅め(2秒間隔)3回分として6秒後に停止
+                    setTimeout(() => { this.blinkMaker = false; }, 6000); 
                 }
             },
 
@@ -751,8 +767,6 @@
                     localStorage.setItem(prop, JSON.stringify(this[prop]));
                     if (this.carData.length > 0 && this.menuData.length > 0 && this.optionData.length > 0) { this.showFileWindow = false; }
                     this.adjustImagesHeight();
-                    
-                    // 🌟 ファイル読込成功後に、自動で次の点滅ステップへ移行
                     this.triggerNextBlink();
                 };
                 reader.readAsArrayBuffer(e.target.files[0]);
@@ -767,8 +781,6 @@
                     if (prop === 'carData') { this.maker = ''; this.model = ''; this.cart = []; }
                     if (!(this.carData.length > 0 && this.menuData.length > 0 && this.optionData.length > 0)) { this.showFileWindow = true; }
                     this.recalculateCart(); this.updateCartHeight();
-                    
-                    // リセット時にも点滅状態を再計算
                     this.triggerNextBlink();
                 }
             },
@@ -809,7 +821,6 @@
                 this.adjustImagesHeight();
             },
             
-            // 👑 パスワード通過後、または認証済みだった場合のメイン初期化処理
             initializeMainFeatures() {
                 this.updateCartHeight();
                 this.triggerPriceSettingGuidance();
@@ -837,13 +848,12 @@
                         effect: 'slide', speed: 300
                     }); 
                     
-                    // 👑 過去にロック解除されたフラグがあるかチェック
                     const alreadyUnlocked = localStorage.getItem('menu_app_global_unlocked');
                     if (alreadyUnlocked === 'true') {
                         this.isAppUnlocked = true;
                         this.initializeMainFeatures();
                     } else {
-                        this.isAppUnlocked = false; // パスワード画面を表示
+                        this.isAppUnlocked = false; 
                     }
                 }); 
             }
@@ -852,3 +862,4 @@
 </script>
 </body>
 </html>
+
