@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- iOS用のホーム画面アイコン設定 -->
     <link rel="apple-touch-icon" href="27522.png">
     
     <script>
@@ -389,7 +388,7 @@
 
     <div class="admin-card">
         <label class="admin-label">④ 個別メニューの値引設定</label>
-        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">※スイッチがOFFの項目は値引き対象外になります。</div>
+        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">※スイッチがOFF項目は値引き対象外になります。</div>
         <div class="discount-list-container">
             <template x-for="item in allUniqueItems" :key="item.name">
                 <div style="border-bottom: 1px solid #eceff1; padding: 12px 15px;">
@@ -682,6 +681,12 @@
                     finalPrice = Math.max(0, basePrice - dValue);
                     text = dValue + '円引';
                 }
+
+                // 「Keeper部分施工」の場合は値引き用テキストを無効化して、裏だけで計算させる
+                if (name === 'Keeper部分施工') {
+                    return { price: finalPrice, text: '', originalPrice: finalPrice };
+                }
+
                 return { price: finalPrice, text: text, originalPrice: basePrice };
             },
             get totalPrice() { return this.cart.reduce((sum, item) => sum + (Number(item.calcPrice) || 0), 0); },
