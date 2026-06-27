@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     
+    <!-- iOS用のホーム画面アイコン設定 -->
+    <link rel="apple-touch-icon" href="27522.png">
+    
     <script>
         (function() {
             const manifest = {
@@ -17,7 +20,19 @@
                 "start_url": window.location.href,
                 "background_color": "#ffffff",
                 "theme_color": "#ffffff",
-                "orientation": "any"
+                "orientation": "any",
+                "icons": [
+                    {
+                        "src": "27522.png",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "27522.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
             };
             const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
             const manifestURL = URL.createObjectURL(blob);
@@ -415,7 +430,7 @@
             <div class="swiper-slide">
                 <div class="page-container" :style="i === 1 ? 'padding-top: 0;' : ''">
                     <div class="zoom-wrapper" :style="i === 1 ? 'padding-top: 0; margin-top: 0; margin-bottom: 15px;' : ''">
-                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')" x-cloak>🔍 画像最大化</button>
+                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')", x-cloak>🔍 画像最大化</button>
                         <div class="swiper-zoom-container">
                             <img :src="i + '.jpg'" class="page-image" :alt="'Page ' + i" @load="i === 2 && adjustImagesHeight()">
                         </div>
