@@ -231,8 +231,6 @@
         
         .double-strike { text-decoration: line-through; -webkit-text-decoration-line: line-through; text-decoration-style: double; -webkit-text-decoration-style: double; color: #777; font-size: 11px; font-weight: normal; }
         .car-info-row td { background: #f0f0f0; font-weight: bold; color: #333; position: relative; }
-        .total-row td { background: #ffe0b2; font-weight: bold; }
-        .total-row td:nth-child(1) { font-size: 11px; color: #e65100; text-align: left; font-weight: bold; }
         .cart-row-item td { background: #fafafa; color: #333; }
         .cart-row-item:active td { background: #ffebee !important; }
 
@@ -310,7 +308,6 @@
             .car-info-row { grid-column: 1 / 3; display: table; width: 100%; table-layout: fixed; } 
             .cart-table td { padding: 5px 6px !important; font-size: 11px !important; }
             .cart-row-item { display: table; width: 100%; table-layout: fixed; box-sizing: border-box; }
-            .total-row { grid-column: 1 / 3; display: table; width: 100%; table-layout: fixed; } 
             .admin-page-overlay { padding: 20px 10%; }
             .toast-guidance { bottom: calc(var(--cart-h, 75px) + 20px); } 
         }
@@ -333,7 +330,7 @@
 </div>
 
 <div id="fullscreenOverlay" class="fullscreen-image-overlay" x-show="imageFullscreenMode" x-cloak>
-    <img :src="fullscreenImageUrl" alt="Fullscreen Image">
+    <img :src="i + '.jpg'" alt="Fullscreen Image" :src="fullscreenImageUrl">
 </div>
 
 <div class="toast-guidance" x-show="showGuidance" x-cloak>
@@ -429,7 +426,7 @@
             <div class="swiper-slide">
                 <div class="page-container" :style="i === 1 ? 'padding-top: 0;' : ''">
                     <div class="zoom-wrapper" :style="i === 1 ? 'padding-top: 0; margin-top: 0; margin-bottom: 15px;' : ''">
-                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')", x-cloak>🔍 画像最大化</button>
+                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')" x-cloak>🔍 画像最大化</button>
                         <div class="swiper-zoom-container">
                             <img :src="i + '.jpg'" class="page-image" :alt="'Page ' + i" @load="i === 2 && adjustImagesHeight()">
                         </div>
@@ -535,8 +532,15 @@
         <table class="cart-table">
             <tbody>
                 <tr class="car-info-row">
-                    <td colspan="2" style="text-align: left;"><span x-text="maker && model ? maker + ' ' + model : '車種未選択'"></span><span style="margin-left: 12px; color: #333;">サイズ: </span><span x-text="selectedSize ? selectedSize : '---'" style="color: #ff4500; font-weight: bold;"></span></td>
-                    <td style="text-align: right;"></td>
+                    <td colspan="2" style="text-align: left; width: 60%;">
+                        <span x-text="maker ? maker : 'メーカー未選択'"></span>
+                        <span style="margin-left: 6px;" x-text="model ? model : '車種未選択'"></span>
+                        <span style="margin-left: 8px; color: #666; font-size: 12px;">サイズ:</span>
+                        <span x-text="selectedSize ? selectedSize : '---'" style="color: #ff4500; font-weight: bold;"></span>
+                    </td>
+                    <td style="text-align: right; width: 40%;">
+                        <span style="font-weight: bold; font-size: 14px; color: #333; white-space: nowrap;">合計: <span style="color: #d32f2f;" x-text="totalPrice.toLocaleString() + '円'"></span></span>
+                    </td>
                 </tr>
                 <template x-for="(row, idx) in nonWrappedCartRows" :key="idx">
                     <tr class="cart-row-item" @click="removeFromCart(row.originalIndex)">
@@ -557,9 +561,10 @@
                         </template>
                     </tr>
                 </template>
-                <tr class="total-row">
-                    <td colspan="2" style="text-align: left;">※項目タップで取り消し</td>
-                    <td style="text-align: right; color: #d32f2f; font-size: 14px;"><span style="color: #333; font-size: 11px; font-weight: normal;">合計:</span><span x-text="totalPrice.toLocaleString() + '円'"></span></td>
+                <tr>
+                    <td colspan="3" style="text-align: left; font-size: 11px; color: #d32f2f; font-weight: bold; background: #fff;">
+                        ※項目タップで取り消し
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -682,7 +687,6 @@
                     text = dValue + '円引';
                 }
 
-                // 「Keeper部分施工」の場合は値引き用テキストを無効化して、裏だけで計算させる
                 if (name === 'Keeper部分施工') {
                     return { price: finalPrice, text: '', originalPrice: finalPrice };
                 }
@@ -844,7 +848,15 @@
             initializeMainFeatures() {
                 this.updateCartHeight();
                 this.triggerPriceSettingGuidance();
-                this.showFullscreenConfirm = true;
+                
+                // 修正箇所：PWA（standalone）や既にフルスクリーン化されている場合はダイアログを出さない
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                if (isStandalone || document.fullscreenElement) {
+                    this.showFullscreenConfirm = false;
+                    this.triggerNextBlink();
+                } else {
+                    this.showFullscreenConfirm = true;
+                }
             },
 
             init() { 
