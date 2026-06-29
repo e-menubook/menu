@@ -80,7 +80,7 @@
 
         .inline-maximize-btn {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             left: 25px;
             z-index: 10;
             background: rgba(0, 0, 0, 0.7);
@@ -102,7 +102,7 @@
             width: 100% !important;
             height: 100vh !important;
             height: 100dvh !important;
-            z-index: 9000;
+            z-index: 999999;
             background: #ffffff;
             overflow-x: hidden !important;
             overflow-y: auto !important;
@@ -218,10 +218,11 @@
             position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 3px solid #333; z-index: 1000;
             box-sizing: border-box; padding: 4px 0 env(safe-area-inset-bottom) 0; margin: 0;
             transition: bottom 0.2s ease, opacity 0.2s ease;
+            display: flex; flex-direction: column;
         }
         .bottom-cart-area.fullscreen-adjusted { padding-bottom: 25px !important; }
         
-        .cart-table-wrapper { width: 100%; max-height: 45vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .cart-table-wrapper { width: 100%; max-height: 40vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .cart-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; }
         .cart-table th, .cart-table td { border: 1px solid #999; padding: 7px 6px; font-size: 13px; vertical-align: middle; box-sizing: border-box; word-break: break-all; }
         
@@ -233,6 +234,22 @@
         .car-info-row td { background: #f0f0f0; font-weight: bold; color: #333; position: relative; }
         .cart-row-item td { background: #fafafa; color: #333; }
         .cart-row-item:active td { background: #ffebee !important; }
+
+        /* カート1番したの取消注意書きスタイル（左寄せに変更） */
+        .cart-cancel-notice {
+            width: 100%;
+            text-align: left;             /* 左寄せ */
+            padding-left: 10px;           /* 左側に少し余白を追加 */
+            font-size: 11px;
+            font-weight: bold;
+            color: #d32f2f;
+            padding-top: 5px;
+            padding-bottom: 2px;
+            background: #fff;
+            border-top: 1px dashed #ccc;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
 
         [x-cloak] { display: none !important; }
 
@@ -275,11 +292,12 @@
 
         .toast-guidance { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px 20px; border-radius: 50px; font-size: 13px; font-weight: bold; text-align: center; line-height: 1.4; z-index: 10000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); pointer-events: none; width: 85%; max-width: 320px; }
 
-        .floating-action-container { position: fixed; top: 15px; left: 15px; z-index: 10010; display: flex; flex-direction: column; gap: 8px; }
-        .floating-action-btn { color: #fff; padding: 8px 14px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4); white-space: nowrap; }
-        .btn-fullscreen-cancel { background: rgba(211, 47, 47, 0.95) !important; border: 1px solid #ffcdd2 !important; }
+        .floating-action-container { position: fixed; bottom: 10px; left: 25px; z-index: 1000000; display: flex; flex-direction: column; gap: 8px; }
+        .floating-action-btn { color: #fff; padding: 6px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4); white-space: nowrap; }
+        .btn-fullscreen-cancel { background: rgba(0, 0, 0, 0.85) !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; }
+        .btn-fullscreen-cancel:active { background: rgba(0, 0, 0, 1) !important; }
 
-        .inline-price-wrap { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .inline-price-wrap { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .cart-item-flex-wrap { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .first-lock-overlay {
@@ -303,13 +321,14 @@
             .selection-area { width: 50% !important; height: calc(100vh - var(--cart-h, 75px)) !important; height: calc(100dvh - var(--cart-h, 75px)) !important; margin: 0 !important; border-radius: 0; overflow-y: auto; padding: 15px; box-shadow: none; border-left: 1px solid #ccc; }
             .bottom-cart-area { left: 0 !important; bottom: 0 !important; position: fixed !important; margin: 0 !important; padding: 4px 0 env(safe-area-inset-bottom) 0 !important; width: 100% !important; height: auto !important; background: #fff; border-top: 3px solid #333; }
             .bottom-cart-area.fullscreen-adjusted { padding-bottom: 14px !important; }
-            .cart-table-wrapper { max-height: 160px !important; height: auto !important; overflow-y: auto; padding-bottom: 14px !important; box-sizing: border-box; }
+            .cart-table-wrapper { max-height: 140px !important; height: auto !important; overflow-y: auto; padding-bottom: 0 !important; box-sizing: border-box; }
             .cart-table tbody { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
             .car-info-row { grid-column: 1 / 3; display: table; width: 100%; table-layout: fixed; } 
             .cart-table td { padding: 5px 6px !important; font-size: 11px !important; }
             .cart-row-item { display: table; width: 100%; table-layout: fixed; box-sizing: border-box; }
             .admin-page-overlay { padding: 20px 10%; }
             .toast-guidance { bottom: calc(var(--cart-h, 75px) + 20px); } 
+            .cart-cancel-notice { text-align: left; padding: 3px 0 3px 10px; border-top: 1px dashed #ccc; }
         }
     </style>
 </head>
@@ -325,12 +344,12 @@
     </div>
 </div>
 
-<div class="floating-action-container">
-    <button class="floating-action-btn btn-fullscreen-cancel" x-show="imageFullscreenMode" @click="disableImageFullscreen()" x-cloak>❌ 戻る</button>
+<div class="floating-action-container" x-show="imageFullscreenMode" x-cloak>
+    <button class="floating-action-btn btn-fullscreen-cancel" @click="disableImageFullscreen()">❌ 戻る</button>
 </div>
 
 <div id="fullscreenOverlay" class="fullscreen-image-overlay" x-show="imageFullscreenMode" x-cloak>
-    <img :src="i + '.jpg'" alt="Fullscreen Image" :src="fullscreenImageUrl">
+    <img :src="fullscreenImageUrl" alt="Fullscreen Image">
 </div>
 
 <div class="toast-guidance" x-show="showGuidance" x-cloak>
@@ -508,7 +527,7 @@
                                                         <span style="color: #d32f2f; font-size: 11px; font-weight: bold;" x-text="'[' + getDiscountInfo(item.name, item.price, 'option').text + ']'"></span>
                                                         <span style="font-size: 11px; color: #777; text-decoration: line-through;" x-text="Number(getDiscountInfo(item.name, item.price, 'option').originalPrice).toLocaleString() + '円'"></span>
                                                         <span style="color: #333; font-size: 11px;">→</span>
-                                                        <span style="color: #d32f2f; font-weight: bold; font-size: 13px;" x-text="Number(getDiscountInfo(item.name, item.price, 'option').price).toLocaleString() + '円'"></span>
+                                                        <span style="color: #d32f2f; font-weight: bold; font-size: 13px;" x-text="Number(getDiscountInfo(item.name, price).price).toLocaleString() + '円'"></span>
                                                     </span>
                                                 </template>
                                                 <template x-if="!getDiscountInfo(item.name, item.price, 'option').text">
@@ -532,14 +551,14 @@
         <table class="cart-table">
             <tbody>
                 <tr class="car-info-row">
-                    <td colspan="2" style="text-align: left; width: 60%;">
-                        <span x-text="maker ? maker : 'メーカー未選択'"></span>
-                        <span style="margin-left: 6px;" x-text="model ? model : '車種未選択'"></span>
-                        <span style="margin-left: 8px; color: #666; font-size: 12px;">サイズ:</span>
+                    <td :colspan="window.matchMedia('(orientation: landscape)').matches ? 1 : 2" style="text-align: left;">
+                        <span x-text="maker && model ? maker + ' ' + model : '車種未選択'"></span>
+                        <span style="margin-left: 12px; color: #333;">サイズ: </span>
                         <span x-text="selectedSize ? selectedSize : '---'" style="color: #ff4500; font-weight: bold;"></span>
                     </td>
-                    <td style="text-align: right; width: 40%;">
-                        <span style="font-weight: bold; font-size: 14px; color: #333; white-space: nowrap;">合計: <span style="color: #d32f2f;" x-text="totalPrice.toLocaleString() + '円'"></span></span>
+                    <td style="text-align: right; font-size: 14px; white-space: nowrap;">
+                        <span style="color: #000; font-size: 12px; font-weight: bold;">合計:</span>
+                        <span x-text="totalPrice.toLocaleString() + '円'" style="color: #d32f2f; font-weight: bold; font-size: 15px; margin-left: 2px;"></span>
                     </td>
                 </tr>
                 <template x-for="(row, idx) in nonWrappedCartRows" :key="idx">
@@ -561,14 +580,10 @@
                         </template>
                     </tr>
                 </template>
-                <tr>
-                    <td colspan="3" style="text-align: left; font-size: 11px; color: #d32f2f; font-weight: bold; background: #fff;">
-                        ※項目タップで取り消し
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
+    <div class="cart-cancel-notice">※項目タップで取消</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
@@ -606,7 +621,7 @@
             carData: [], menuData: [], optionData: [],
             cart: [],
             swiperInstance: null,
-            cartHeight: 110, 
+            cartHeight: 130, 
 
             get makers() { return [...new Set(this.carData.map(d => d['メーカー']))].filter(Boolean); },
             get models() { return this.carData.filter(d => d['メーカー'] === this.maker).map(d => d['車種']); },
@@ -706,9 +721,10 @@
                         document.documentElement.style.setProperty('--cart-h', totalOffset + 'px');
                     }
                     if (this.swiperInstance) this.swiperInstance.update();
-                    this.adjustImagesHeight();
+                    this.withAdjustedImagesHeight();
                 });
             },
+            withAdjustedImagesHeight() { this.adjustImagesHeight(); },
             toggleFullscreen() {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen()
@@ -848,15 +864,7 @@
             initializeMainFeatures() {
                 this.updateCartHeight();
                 this.triggerPriceSettingGuidance();
-                
-                // 修正箇所：PWA（standalone）や既にフルスクリーン化されている場合はダイアログを出さない
-                const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-                if (isStandalone || document.fullscreenElement) {
-                    this.showFullscreenConfirm = false;
-                    this.triggerNextBlink();
-                } else {
-                    this.showFullscreenConfirm = true;
-                }
+                this.showFullscreenConfirm = true;
             },
 
             init() { 
