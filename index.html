@@ -45,6 +45,7 @@
     <title>Keeper電子メニュー</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <style>
         html, body { margin: 0; padding: 0; height: 100vh; height: 100dvh; background: #fff; overflow-x: hidden; overflow-y: hidden; font-family: sans-serif; overscroll-behavior-y: none; }
         
@@ -235,11 +236,10 @@
         .cart-row-item td { background: #fafafa; color: #333; }
         .cart-row-item:active td { background: #ffebee !important; }
 
-        /* カート1番したの取消注意書きスタイル（左寄せに変更） */
         .cart-cancel-notice {
             width: 100%;
-            text-align: left;             /* 左寄せ */
-            padding-left: 10px;           /* 左側に少し余白を追加 */
+            text-align: left;             
+            padding-left: 10px;           
             font-size: 11px;
             font-weight: bold;
             color: #d32f2f;
@@ -280,6 +280,12 @@
         .discount-list-container { max-height: 50vh; overflow-y: auto; border: 1px solid #cfd8dc; border-radius: 6px; background: #fff; margin-bottom: 10px; }
         .discount-item-name { font-size: 14px; color: #37474f; font-weight: bold; flex: 1; margin-right: 10px; }
         
+        /* ドラッグハンドルのスタイル追加 */
+        .drag-handle { cursor: grab; padding: 4px 10px; color: #90a4ae; font-size: 18px; margin-right: 8px; user-select: none; -webkit-user-select: none; }
+        .drag-handle:active { cursor: grabbing; color: #37474f; }
+        .sortable-chosen { background-color: #eceff1; }
+        .sortable-ghost { opacity: 0.4; background-color: #b0bec5; }
+
         .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cfd8dc; transition: .3s; border-radius: 26px; }
@@ -403,13 +409,53 @@
     </div>
 
     <div class="admin-card">
-        <label class="admin-label">④ 個別メニューの値引設定</label>
-        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">※スイッチがOFF項目は値引き対象外になります。</div>
-        <div class="discount-list-container">
-            <template x-for="item in allUniqueItems" :key="item.name">
-                <div style="border-bottom: 1px solid #eceff1; padding: 12px 15px;">
+        <label class="admin-label">④ 個別メニューの並び替え・値引設定</label>
+        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">※ ☰ をドラッグすると表示順序を変更できます。スイッチがOFFの項目は値引き対象外になります。</div>
+        
+        <div style="font-size: 13px; font-weight: bold; margin: 10px 0 5px 0; color: #006064;">▼ 洗車・コーティングメニュー順序</div>
+        <div id="sortableMenuContainer" class="discount-list-container">
+            <template x-for="item in uniqueMenuItems" :key="item.name">
+                <div :data-id="item.name" style="border-bottom: 1px solid #eceff1; padding: 12px 15px; background: #fff;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="discount-item-name" x-text="item.name"></span>
+                        <div style="display: flex; align-items: center; flex: 1;">
+                            <span class="drag-handle">☰</span>
+                            <span class="discount-item-name" x-text="item.name"></span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" x-model="itemSettings[item.name].enabled">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div x-show="itemSettings[item.name].enabled">
+                        <div style="margin-top: 10px; padding: 10px; background: #f0f4f8; border-radius: 6px;">
+                            <label style="display: flex; align-items: center; font-size: 13px; font-weight: bold; color: #455a64; margin-bottom: 8px;">
+                                <input type="checkbox" x-model="itemSettings[item.name].custom" style="margin-right: 8px;"> 個別に値引設定する
+                            </label>
+                            <div x-show="itemSettings[item.name].custom">
+                                <div class="toggle-switch-group" style="margin-bottom: 8px;">
+                                    <button type="button" class="toggle-switch-btn" :class="itemSettings[item.name].type === 'percent' ? 'active' : ''" @click="itemSettings[item.name].type = 'percent'">%値引き</button>
+                                    <button type="button" class="toggle-switch-btn" :class="itemSettings[item.name].type === 'fixed' ? 'active' : ''" @click="itemSettings[item.name].type = 'fixed'">円値引き</button>
+                                </div>
+                                <div class="admin-input-row" style="margin-bottom: 0;">
+                                    <input type="number" class="admin-input" x-model.number="itemSettings[item.name].value" min="0" style="width: 100px; padding: 8px;">
+                                    <span style="font-weight: bold; font-size: 14px; color: #37474f;" x-text="itemSettings[item.name].type === 'percent' ? '%' : '円'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div style="font-size: 13px; font-weight: bold; margin: 15px 0 5px 0; color: #e65100;">▼ サイドメニュー順序</div>
+        <div id="sortableOptionContainer" class="discount-list-container">
+            <template x-for="item in uniqueOptionItems" :key="item.name">
+                <div :data-id="item.name" style="border-bottom: 1px solid #eceff1; padding: 12px 15px; background: #fff;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; flex: 1;">
+                            <span class="drag-handle">☰</span>
+                            <span class="discount-item-name" x-text="item.name"></span>
+                        </div>
                         <label class="switch">
                             <input type="checkbox" x-model="itemSettings[item.name].enabled">
                             <span class="slider round"></span>
@@ -527,7 +573,7 @@
                                                         <span style="color: #d32f2f; font-size: 11px; font-weight: bold;" x-text="'[' + getDiscountInfo(item.name, item.price, 'option').text + ']'"></span>
                                                         <span style="font-size: 11px; color: #777; text-decoration: line-through;" x-text="Number(getDiscountInfo(item.name, item.price, 'option').originalPrice).toLocaleString() + '円'"></span>
                                                         <span style="color: #333; font-size: 11px;">→</span>
-                                                        <span style="color: #d32f2f; font-weight: bold; font-size: 13px;" x-text="Number(getDiscountInfo(item.name, price).price).toLocaleString() + '円'"></span>
+                                                        <span style="color: #d32f2f; font-weight: bold; font-size: 13px;" x-text="Number(getDiscountInfo(item.name, item.price, 'option').price).toLocaleString() + '円'"></span>
                                                     </span>
                                                 </template>
                                                 <template x-if="!getDiscountInfo(item.name, item.price, 'option').text">
@@ -619,6 +665,9 @@
 
             maker: '', model: '', 
             carData: [], menuData: [], optionData: [],
+            // 各グループ専用の表示用順番配列を追加
+            menuOrder: [],
+            optionOrder: [],
             cart: [],
             swiperInstance: null,
             cartHeight: 130, 
@@ -627,13 +676,30 @@
             get models() { return this.carData.filter(d => d['メーカー'] === this.maker).map(d => d['車種']); },
             get selectedSize() { const f = this.carData.find(d => d['メーカー'] === this.maker && d['車種'] === this.model); return f ? f['サイズ'] : ''; },
             
+            // 各グループごとに定義された表示順序に従ってソートしメインメニューへ反映
             get filteredMenu() {
                 if (!this.selectedSize || this.menuData.length === 0) return [];
-                return this.menuData.filter(item => String(item.size) === String(this.selectedSize));
+                const res = this.menuData.filter(item => String(item.size) === String(this.selectedSize));
+                return this.sortItemsByArray(res, this.menuOrder);
             },
             get filteredOption() {
                 if (!this.selectedSize || this.optionData.length === 0) return [];
-                return this.optionData.filter(item => !item.size || String(item.size) === String(this.selectedSize));
+                const res = this.optionData.filter(item => !item.size || String(item.size) === String(this.selectedSize));
+                return this.sortItemsByArray(res, this.optionOrder);
+            },
+            
+            // 管理画面用に分離したユニーク一覧データ
+            get uniqueMenuItems() {
+                const map = new Map();
+                this.menuData.forEach(d => { if(d.name) map.set(d.name, { name: d.name }); });
+                const list = Array.from(map.values());
+                return this.sortItemsByArray(list, this.menuOrder);
+            },
+            get uniqueOptionItems() {
+                const map = new Map();
+                this.optionData.forEach(d => { if(d.name) map.set(d.name, { name: d.name }); });
+                const list = Array.from(map.values());
+                return this.sortItemsByArray(list, this.optionOrder);
             },
             get allUniqueItems() {
                 const map = new Map();
@@ -641,7 +707,19 @@
                 this.optionData.forEach(d => { if(d.name) map.set(d.name, { name: d.name }); });
                 return Array.from(map.values());
             },
-            get nonWrappedCartRows() { return this.cart.map((item, index) => ({ ...item, originalIndex: index })); },
+
+            sortItemsByArray(items, orderArray) {
+                if (!orderArray || orderArray.length === 0) return items;
+                return [...items].sort((a, b) => {
+                    let idxA = orderArray.indexOf(a.name);
+                    let idxB = orderArray.indexOf(b.name);
+                    if (idxA === -1) idxA = 999;
+                    if (idxB === -1) idxB = 999;
+                    return idxA - idxB;
+                });
+            },
+
+            nonWrappedCartRows() { return this.cart.map((item, index) => ({ ...item, originalIndex: index })); },
 
             verifyFirstPassword() {
                 if (this.firstInputPassword === '8541') {
@@ -819,6 +897,8 @@
                     this[prop] = []; localStorage.removeItem(prop);
                     const fileInput = document.getElementById(inputId); if (fileInput) fileInput.value = '';
                     if (prop === 'carData') { this.maker = ''; this.model = ''; this.cart = []; }
+                    if (prop === 'menuData') { this.menuOrder = []; localStorage.removeItem('menuOrder'); }
+                    if (prop === 'optionData') { this.optionOrder = []; localStorage.removeItem('optionOrder'); }
                     if (!(this.carData.length > 0 && this.menuData.length > 0 && this.optionData.length > 0)) { this.showFileWindow = true; }
                     this.recalculateCart(); this.updateCartHeight();
                     this.triggerNextBlink();
@@ -848,15 +928,59 @@
             triggerPriceSettingGuidance() { this.showGuidance = true; setTimeout(() => { this.showGuidance = false; }, 4000); },
             openPasswordScreen() { this.inputPassword = ''; this.showPasswordDialog = true; },
             verifyPassword() {
-                if (this.inputPassword === '8541') { this.showPasswordDialog = false; this.syncItemSettings(); this.showAdminPage = true; } 
+                if (this.inputPassword === '8541') { 
+                    this.showPasswordDialog = false; 
+                    this.syncItemSettings(); 
+                    this.showAdminPage = true; 
+                    // 設定画面を開いたタイミングで並び替えライブラリを初期化・紐付け
+                    this.$nextTick(() => { this.initSortable(); });
+                } 
                 else { alert('パスワードが違います。'); this.inputPassword = ''; }
             },
+            
+            // Sortable.jsの適用処理
+            initSortable() {
+                const menuEl = document.getElementById('sortableMenuContainer');
+                if (menuEl) {
+                    Sortable.create(menuEl, {
+                        handle: '.drag-handle',
+                        animation: 200,
+                        ghostClass: 'sortable-ghost',
+                        chosenClass: 'sortable-chosen',
+                        onEnd: () => {
+                            // DOMから最新の順番を配列として取得
+                            const currentOrder = Array.from(menuEl.querySelectorAll('[data-id]')).map(el => el.getAttribute('data-id'));
+                            this.menuOrder = currentOrder;
+                        }
+                    });
+                }
+
+                const optionEl = document.getElementById('sortableOptionContainer');
+                if (optionEl) {
+                    Sortable.create(optionEl, {
+                        handle: '.drag-handle',
+                        animation: 200,
+                        ghostClass: 'sortable-ghost',
+                        chosenClass: 'sortable-chosen',
+                        onEnd: () => {
+                            const currentOrder = Array.from(optionEl.querySelectorAll('[data-id]')).map(el => el.getAttribute('data-id'));
+                            this.optionOrder = currentOrder;
+                        }
+                    });
+                }
+            },
+
             saveAndReturn() {
                 localStorage.setItem('discountType', this.discountType);
                 localStorage.setItem('discountValue', this.discountValue);
                 localStorage.setItem('discountTarget', this.discountTarget);
                 localStorage.setItem('itemSettings', JSON.stringify(this.itemSettings));
-                this.recalculateCart(); this.showAdminPage = false;
+                // 並び替え順序の保存を追加
+                localStorage.setItem('menuOrder', JSON.stringify(this.menuOrder));
+                localStorage.setItem('optionOrder', JSON.stringify(this.optionOrder));
+                
+                this.recalculateCart(); 
+                this.showAdminPage = false;
                 if(this.swiperInstance) this.swiperInstance.update();
                 this.adjustImagesHeight();
             },
@@ -865,17 +989,14 @@
                 this.updateCartHeight();
                 this.triggerPriceSettingGuidance();
                 
-                // すでに全画面表示（またはPWAスタンドアロン等）であるかチェック
                 const isAlreadyFullscreen = document.fullscreenElement || 
                                             window.matchMedia('(display-mode: standalone)').matches || 
                                             window.navigator.standalone;
 
                 if (isAlreadyFullscreen) {
-                    // すでに全画面ならダイアログは表示せずそのまま次の点滅処理へ
                     this.isFullscreen = true;
                     this.triggerNextBlink();
                 } else {
-                    // 全画面でなければ確認ダイアログを表示
                     this.showFullscreenConfirm = true;
                 }
             },
@@ -888,6 +1009,10 @@
                 const storedDiscountType = localStorage.getItem('discountType'); if (storedDiscountType) this.discountType = storedDiscountType;
                 const storedDiscountValue = localStorage.getItem('discountValue'); if (storedDiscountValue) this.discountValue = Number(storedDiscountValue);
                 const storedDiscountTarget = localStorage.getItem('discountTarget'); if (storedDiscountTarget) this.discountTarget = storedDiscountTarget;
+                
+                // 永続化された並び替えデータを読み込む
+                const storedMenuOrder = localStorage.getItem('menuOrder'); if (storedMenuOrder) this.menuOrder = JSON.parse(storedMenuOrder);
+                const storedOptionOrder = localStorage.getItem('optionOrder'); if (storedOptionOrder) this.optionOrder = JSON.parse(storedOptionOrder);
 
                 if (this.carData.length > 0 && this.menuData.length > 0 && this.optionData.length > 0) { this.showFileWindow = false; }
 
